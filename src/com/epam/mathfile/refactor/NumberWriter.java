@@ -1,8 +1,10 @@
 package com.epam.mathfile.refactor;
 
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,41 +18,46 @@ public class NumberWriter {
     }
 
     public void save() throws NumberWriterException {
-        byte[] space = " ".getBytes();
+        String space = " ";
+        FileOutputStream fileOutputStream = null;
+        BufferedWriter bufferedWriter = null;
 
         try {
-            FileOutputStream fileOutputStream = new FileOutputStream(path, true);
+            fileOutputStream = new FileOutputStream(path, true);
+            bufferedWriter = new BufferedWriter(new OutputStreamWriter(fileOutputStream));
             for (Data data : list) {
-                fileOutputStream.write(data.getNumber1().toString().getBytes());
-                fileOutputStream.write(space);
+                bufferedWriter.write(data.getNumber1().toString());
                 switch (data.getSign()) {
                     case PLUS:
-                        fileOutputStream.write("+".getBytes());
+                        bufferedWriter.write(" + ");
                         break;
                     case MINUS:
-                        fileOutputStream.write("-".getBytes());
+                        bufferedWriter.write(" - ");
                         break;
                     case MULTIPLICATION:
-                        fileOutputStream.write("*".getBytes());
+                        bufferedWriter.write(" * ");
                         break;
                     case DIVISION:
-                        fileOutputStream.write("/".getBytes());
+                        bufferedWriter.write(" / ");
                         break;
                     default:
                         break;
                 }
-                fileOutputStream.write(space);
-                fileOutputStream.write(data.getNumber2().toString().getBytes());
-                fileOutputStream.write(space);
-                fileOutputStream.write("=".getBytes());
-                fileOutputStream.write(space);
-                fileOutputStream.write(data.getResult().toString().getBytes());
-                fileOutputStream.write(10);
+                bufferedWriter.write(data.getNumber2().toString() + " = " + data.getResult().toString());
+                bufferedWriter.newLine();
             }
         } catch(FileNotFoundException e) {
             throw new NumberWriterException(e);
         } catch(IOException e) {
             throw new NumberWriterException(e);
+        } finally {
+            if (bufferedWriter != null) {
+                try {
+                    bufferedWriter.close();
+                } catch (IOException e) {
+                    throw new NumberWriterException(e);
+                }
+            }
         }
     }
 
